@@ -1,85 +1,94 @@
 'use strict'
 
 const headerInput = document.querySelector('.header-input');
-const btnAdd = document.getElementById('add');
-const ulTodo = document.getElementById('todo');
-const btnComplete = document.querySelectorAll('.todo-complete');
-const btnRemove = document.querySelectorAll('.todo-remove');
-const ulCompleted = document.getElementById('completed');
+const addBtn = document.getElementById('add');
+const todoUl = document.getElementById('todo');
+const completeBtn = document.querySelectorAll('.todo-complete');
+const removeBtn = document.querySelectorAll('.todo-remove');
+const completedUl = document.getElementById('completed');
 
-let todos = [];
-let completed = [];
+const todos = [];
+const completed = [];
 
-const addData = () => {
-    // let newTodo = {
-    //     todoInput: headerInput.value,
-    // };
-
-    //todos.push(newTodo);
-    plan();
-
+const complete = (target) => {
+    const li = target.parentNode.parentNode;
+    const text = target.textContent;
+    const liParent = li.parentNode;
+    const id = liParent.id;
+    
+    if (id === 'todo') {
+        todos.splice(todos.indexOf(text), 1);
+        completed.push(text);
+        completedUl.appendChild(li);
+        save();
+    } else if (id === 'completed') {
+        completed.splice(completed.indexOf(text), 1);
+        todos.push(text);
+        todoUl.appendChild(li);
+        save();
+    }
 }
 
-function plan() {
+const remove = (target) => {
+    const li = target.parentNode.parentNode;
+    const text = target.textContent;
+    const liParent = li.parentNode;
+    const id = liParent.id;
+    
+    if (id === 'todo') {
+        todos.splice(todos.indexOf(text), 1);
+        save();
+    } else if (id === 'completed') {
+        completed.splice(completed.indexOf(text), 1);
+        save();
+    }
+
+    liParent.removeChild(li);
+}
+
+const addwidget = () => {
     const li = document.createElement('li');
     const span = document.createElement('span');
     const div = document.createElement('div');
-    const btnRemove = document.createElement('button');
-    const btnComplete = document.createElement('button');
+    const removeBtn = document.createElement('button');
+    const completeBtn = document.createElement('button');
 
     li.classList.add('todo-item');
     div.classList.add('todo-buttons');
-    btnRemove.classList.add('todo-remove');
-    btnComplete.classList.add('todo-complete');
+    removeBtn.classList.add('todo-remove');
+    completeBtn.classList.add('todo-complete');
     span.textContent = headerInput.value;
 
     li.appendChild(div);
     li.appendChild(span);
-    div.appendChild(btnRemove);
-    div.appendChild(btnComplete);
+    div.appendChild(removeBtn);
+    div.appendChild(completeBtn);
 
-    ulTodo.appendChild(li);
-
+    todoUl.appendChild(li);
     todos.push(li.textContent);
 
-    btnComplete.addEventListener('click', (event) => {
-        done(event.target);
-        li.style.display = 'none';
-        
+    completeBtn.addEventListener('click', (event) => {
+        complete(event.target);
+    });
+    removeBtn.addEventListener('click', (event) => {
+        remove(event.target);
     });
 };
 
-const done = (target) => {
-    const li = document.createElement('li');
-    const span = document.createElement('span');
-    const div = document.createElement('div');
-    const btnRemove = document.createElement('button');
-    const btnComplete = document.createElement('button');
+addBtn.addEventListener('click', addwidget);
 
-    li.classList.add('todo-item');
-    div.classList.add('todo-buttons');
-    btnRemove.classList.add('todo-remove');
-    btnComplete.classList.add('todo-complete');
-    span.textContent = headerInput.value;
+let todoSave = localStorage.getItem('todo');
+let completedSave = localStorage.getItem('completed');
 
-    li.appendChild(div);
-    li.appendChild(span);
-    div.appendChild(btnRemove);
-    div.appendChild(btnComplete);
-
-    ulCompleted.appendChild(li);
-
-    btnComplete.addEventListener('click', (event) => {
-        plan(event.target);
-        li.style.display = 'none';
-        
-    });
-    console.log(target);
+const save = () => {
+    todoSave = todos;
+    completedSave = completed;
+    localStorage.setItem('todo', todoSave);
+    localStorage.setItem('completed', completedSave);
 }
 
-btnAdd.addEventListener('click', addData);
-
-
-document.addEventListener('click', event => {
-    console.log('click', event.target);
-})
+addBtn.addEventListener('click', () => {
+    localStorage.setItem('todo', '') === todoSave;
+    localStorage.setItem('completed', '') === completedSave;
+    save();
+});
